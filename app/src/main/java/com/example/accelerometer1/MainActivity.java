@@ -1,16 +1,20 @@
 package com.example.accelerometer1;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 
 import android.os.Bundle;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import java.lang.reflect.Array;
+import java.sql.Time;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -24,7 +28,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Switch swHertz;
     int samplingPeriodSlow = 1000000; // microseconds // 1Hz
     int samplingPeriodFast = 20000; // microseconds // 50Hz
-    int samplingPeriod = samplingPeriodSlow;
+    int samplingPeriod = samplingPeriodFast;
+    int sleepyTime = 1000;
+
+    // Timer t = new java.util.Timer();
+
+    String[] lineForPrint;
+    String lineForPrintLine;
+
+    String gyrValueString, accValueString, timeStamp, timeStampMs;
 
     // char delay = SENSOR_DELAY_FASTEST;
 
@@ -46,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Register sensor listener.
         sensorManager1.registerListener(this, accelerometer, samplingPeriod);
         sensorManager2.registerListener(this, gyroscope, samplingPeriod);
+        //sensorManager1.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
 
         // Assign TextView
         xValAcc = (TextView)findViewById(R.id.xValAcc);
@@ -64,28 +77,44 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         swHertz.setOnClickListener(v -> {
 
             if (swHertz.isChecked()) {
-                samplingPeriod = samplingPeriodFast;
+                sleepyTime = 20;
             }
             else {
-                samplingPeriod = samplingPeriodSlow;
+                sleepyTime = 100;
             }
         });
         */
-        /*
+
+
+
         swHertz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(swHertz.isChecked()) {
-                    samplingPeriod = samplingPeriodFast;
-                    setupSensorManager(samplingPeriod);
+                    sleepyTime = 20; // 50 Hz
+                    //System.out.println(Arrays.toString(lineForPrint));
                 }
-                if(swHertz.isChecked() == false) {
-                    samplingPeriod = samplingPeriodSlow;
-                    setupSensorManager(samplingPeriod);
+                else {
+                    sleepyTime = 1000; // 1 Hz
                 }
             }
         });
+
+
+
+
+        /*
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println(lineForPrintLine);
+                    }
+                },
+                100
+        );
         */
+
         //currentDateTime = Calendar.getInstance().getTime();
         //currentTime.setText(currentDateTime.toString());
     }
@@ -112,7 +141,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         currentTime.setText(currentDateTime.toString());
         currentMilliTime.setText(String.valueOf(detailTime));
+
+        timeStamp = currentDateTime.toString();
+        timeStampMs = String.valueOf(detailTime);
     }
+
+
+    /*
+    public synchronized double[] putValuesInArray(double xVal, double yVal, double zVal) {
+        return new double[]{xVal, yVal, zVal};
+    }
+    */
 
     // Accelerometer SensorEvent
     @Override
@@ -122,14 +161,75 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             xValAcc.setText(String.valueOf(event.values[0]));
             yValAcc.setText(String.valueOf(event.values[1]));
             zValAcc.setText(String.valueOf(event.values[2]));
+
+            //double xVal = event.values[0];
+            //double yVal = event.values[1];
+            //double zVal = event.values[2];
+            double[] accValues = {event.values[0], event.values[1], event.values[2]};
+            //double[] stuffAcc = putValuesInArray(event.values[0], event.values[1], event.values[2]);
+            //System.out.println(Arrays.toString(accValues));
+            //System.out.println(Arrays.toString(stuffAcc));
+
+            accValueString = Arrays.toString(accValues);
+            //System.out.println(accValueString);
+
         }
         if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             xValGyr.setText(String.valueOf(event.values[0]));
             yValGyr.setText(String.valueOf(event.values[1]));
             zValGyr.setText(String.valueOf(event.values[2]));
+
+            double[] gyrValues = {event.values[0], event.values[1], event.values[2]};
+            // System.out.println(Arrays.toString(gyrValues));
+            gyrValueString = Arrays.toString(gyrValues);
+            //System.out.println(gyrValueString);
+            //double[] stuffGyr = putValuesInArray(event.values[0], event.values[1], event.values[2]);
+            //System.out.println(Arrays.toString(stuffGyr));
         }
         updateTime();
+
+        //String[] lineForPrint = {gyrValueString, accValueString, timeStamp, timeStampMs};
+        String[] lineForPrint = {gyrValueString, accValueString, timeStamp, timeStampMs};
+        lineForPrintLine = Arrays.toString(lineForPrint);
+        System.out.println(Arrays.toString(lineForPrint));
+        // System.out.println(sleepyTime);
+        // System.out.println(toString(sleepyTime));
+
+        /*
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        System.out.println(lineForPrintLine);
+                    }
+                },
+                sleepyTime
+        );
+        */
+
+
+        /*
+        boolean thisIsTrue = true;
+        //System.out.println(Arrays.toString(lineForPrint));
+        while(thisIsTrue == true) {
+            System.out.println("Hey hey");
+            System.out.println("Hey hey hey");
+        }
+        */
+
+        //double[] accValues = {xVal, yVal, zVal};
+        //System.out.println(Arrays.toString(accValues));
     }
+
+    /*
+    public synchronized void printStuffToConsole(String lineForPrint) {
+        boolean thisIsTrue = true;
+        while (thisIsTrue) {
+            System.out.println("HeyHey");
+            System.out.println("heyHeyHey");
+        }
+    }
+    */
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -138,4 +238,3 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
 }
-
