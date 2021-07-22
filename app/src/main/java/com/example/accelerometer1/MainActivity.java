@@ -17,6 +17,8 @@ import java.sql.Time;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -73,34 +75,66 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         currentMilliTime = (TextView)findViewById(R.id.tvCurrentMilliTime);
         swHertz = (Switch)findViewById(R.id.swHertz);
 
-        /*
+
         swHertz.setOnClickListener(v -> {
 
             if (swHertz.isChecked()) {
                 sleepyTime = 20;
+                System.out.println(sleepyTime);
             }
             else {
-                sleepyTime = 100;
+                sleepyTime = 1000;
+                System.out.println(sleepyTime);
+            }
+        });
+
+
+
+        /*
+        swHertz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(swHertz.isChecked()) {
+                    sleepyTime = 20; // 50 Hz
+                    System.out.println(sleepyTime);
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            System.out.println(lineForPrintLine);
+                        }
+                    }, 0, 20);
+                    //System.out.println(Arrays.toString(lineForPrint));
+                }
+                else {
+                    sleepyTime = 1000; // 1 Hz
+                    System.out.println(sleepyTime);
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            System.out.println(lineForPrintLine);
+                        }
+                    }, 0, 1000);
+                }
             }
         });
         */
 
 
 
-        swHertz.setOnClickListener(new View.OnClickListener() {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
             @Override
-            public void onClick(View v) {
-                if(swHertz.isChecked()) {
-                    sleepyTime = 20; // 50 Hz
-                    //System.out.println(Arrays.toString(lineForPrint));
-                }
-                else {
-                    sleepyTime = 1000; // 1 Hz
-                }
+            public void run() {
+                updateTime();
+
+                String[] lineForPrint = {gyrValueString, accValueString, timeStamp, timeStampMs};
+                lineForPrintLine = Arrays.toString(lineForPrint);
+
+                System.out.println(lineForPrintLine);
             }
-        });
-
-
+        }, 0, 20);
 
 
         /*
@@ -191,7 +225,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //String[] lineForPrint = {gyrValueString, accValueString, timeStamp, timeStampMs};
         String[] lineForPrint = {gyrValueString, accValueString, timeStamp, timeStampMs};
         lineForPrintLine = Arrays.toString(lineForPrint);
-        System.out.println(Arrays.toString(lineForPrint));
+        //  System.out.println(Arrays.toString(lineForPrint));
+        //System.out.println(lineForPrintLine);
         // System.out.println(sleepyTime);
         // System.out.println(toString(sleepyTime));
 
