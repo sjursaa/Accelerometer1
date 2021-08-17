@@ -1,12 +1,16 @@
 package com.example.accelerometer1;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.hardware.Sensor;
@@ -36,6 +40,9 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.nio.Buffer;
 import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public static final int DEFAULT_UPDATE_INTERVAL = 20; // 50Hz
     public static final int FAST_UPDATE_INTERVAL = 10; // 100 Hz
     private static final int PERMISSIONS_FINE_LOCATION = 99;
+    private static final int CREATE_FILE = 1;
 
     // Google API for location
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -243,8 +251,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public synchronized void updateTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss:SSS");
         long detailTime = Calendar.getInstance().getTimeInMillis();
-        Date currentDateTime = Calendar.getInstance().getTime();
+        String currentDateTime = sdf.format(Calendar.getInstance().getTime());
+
+        //SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy-HH:mm:ss:SSS");
+
+        //currentDateTime = sdf.format(currentDateTime);
+        /*
+        String date = DateTimeFormatter.format(formatter);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy-hh");
+        df.format(new Date());
+
+        Date currentDate;
+        Date currentHour;
+        */
 
         currentTime.setText(currentDateTime.toString());
         currentMilliTime.setText(String.valueOf(detailTime));
@@ -286,6 +307,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             Log.i(TAG,lineForPrintLine);
             appendLog(lineForPrintLine);
+            appendLogExt(lineForPrintLine);
 
         }
 
@@ -297,7 +319,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     public void appendLog(String text){
-        File logFile = new File(getFilesDir(), "log2.txt");
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("ddMMyy-HH");
+        String filename;
+        filename = sdf.format(date) + ".txt";
+
+        File logFile = new File(getFilesDir(), filename);
         /*
         if(Environment.isExternalStorageManager()){
             // logFile = new File(getFilesDir(), "log2.txt");
@@ -310,8 +337,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 e.printStackTrace();
             }
              */
-        }
-        */
+        //}
+        //*/
 
         if(!logFile.exists()){
             try {
@@ -333,4 +360,81 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    public void appendLogExt(String text){
+
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("ddMMyy-HH");
+        String filename;
+        filename = sdf.format(date) + ".txt";
+        Log.d(TAG, filename);
+        //File logFile = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "log3.txt");
+        File logFile = new File("/storage/self/primary/Documents/Cemit", filename);
+        // File logFile = new File(getFilesDir(), "log5.txt");
+        /*
+        if(Environment.isExternalStorageManager()){
+            // logFile = new File(getFilesDir(), "log2.txt");
+            /*
+            try {
+                //String directory = Environment.getExternalStorageState("/sdcard/log");
+                logFile = new File(getFilesDir(), "log2.txt");
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+             */
+        //}
+        //*/
+
+        if(!logFile.exists()){
+            try {
+                logFile.createNewFile();
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+        try{
+            //BufferedWriter
+            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+            buf.append(text);
+            buf.newLine();
+            buf.close();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    /*
+    public void createSharedFile(Uri pickerInitialUri) {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TITLE, "LogFile.txt");
+
+        // ACTION_OPEN_DOCUMENT
+
+        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
+
+        startActivityForResult(intent, CREATE_FILE);
+
+
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Uri fileURL = null;
+        if(resultCode == Activity.RESULT_OK) {
+
+            if(resultCode == CREATE_FILE) {
+                if (data != null) {
+                    Log.i("STORAGE_TAG", "File created successfully");
+                }
+            }
+        }
+    }
+
+     */
 }
